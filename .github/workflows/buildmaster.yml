@@ -1,0 +1,39 @@
+name: Build and Upload WAR
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      # Compile Java files (modify paths as per your structure)
+      - name: Compile Java classes
+        run: |
+          mkdir -p out/classes
+          javac -d out/classes src/Main.java
+
+      # Package compiled files along with web resources into WAR
+      - name: Package WAR
+        run: |
+          mkdir -p out/war
+          cp -r webapp/* out/war/
+          cd out/war
+          jar -cvf ../app.war *
+
+      - name: Upload WAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-war
+          path: out/app.war
